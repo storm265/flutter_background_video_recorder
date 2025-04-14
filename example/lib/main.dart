@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_background_video_recorder/flutter_bvr.dart';
@@ -138,8 +139,7 @@ class _MyAppState extends State<MyApp> {
                             cameraFacing: CameraFacing.frontCamera,
                             notificationTitle: "Example Notification Title",
                             notificationText: "Example Notification Text",
-                            showToast: false
-                    );
+                            showToast: false);
                     setState(() {});
                   } else if (!_isRecording && _recorderBusy) {
                     return;
@@ -149,7 +149,7 @@ class _MyAppState extends State<MyApp> {
                                 .stopVideoRecording() ??
                             "None";
                     setState(() {});
-                    debugPrint(filePath);
+                    log('path ${filePath}');
                   }
                 },
                 child: Text(
