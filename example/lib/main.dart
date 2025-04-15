@@ -96,9 +96,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Background video recorder'),
-        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -135,11 +132,12 @@ class _MyAppState extends State<MyApp> {
                   if (!_isRecording && !_recorderBusy) {
                     await _flutterBackgroundVideoRecorderPlugin
                         .startVideoRecording(
-                            folderName: "Example Recorder",
-                            cameraFacing: CameraFacing.frontCamera,
-                            notificationTitle: "Example Notification Title",
-                            notificationText: "Example Notification Text",
-                            showToast: false);
+                      folderName: "Example Recorder",
+                      cameraFacing: CameraFacing.rearCamera,
+                      notificationTitle: "Example Notification Title",
+                      notificationText: "Example Notification Text",
+                      showToast: false,
+                    );
                     setState(() {});
                   } else if (!_isRecording && _recorderBusy) {
                     return;
@@ -149,7 +147,7 @@ class _MyAppState extends State<MyApp> {
                                 .stopVideoRecording() ??
                             "None";
                     setState(() {});
-                    log('path ${filePath}');
+                    log('path $filePath');
                   }
                 },
                 child: Text(
