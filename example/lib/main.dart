@@ -17,15 +17,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // Recorder variables to keep track of recording status
-  // _isRecording when set to true indicates that the video is being recorded
-  // _recorderBusy when set to true indicated that the recorder is doing some job
-  //    - It can be that the recorder is initializing resources
-  //    - And/or recorder is recording the video.
-  // In any case, when the _recorderBusy is set to true, start/stop recording should not be called.
-  bool _isRecording = false;
-  bool _recorderBusy = false;
-
   // StreamSubscription to get realtime recorder events from native platform
   //  - 1: Recording in progress
   //  - 2: Recording has been stopped
@@ -56,9 +47,7 @@ class _MyAppState extends State<MyApp> {
 
   // Check if the recorder is already recording when returning to the app after it was closed.
   Future<void> getInitialRecordingStatus() async {
-    _isRecording =
-        await _flutterBackgroundVideoRecorderPlugin.getVideoRecordingStatus() ==
-            1;
+    log('is already working? : ${await _flutterBackgroundVideoRecorderPlugin.getVideoRecordingStatus() == 1}');
   }
 
   // Listen to recorder events to update UI accordingly
@@ -68,26 +57,43 @@ class _MyAppState extends State<MyApp> {
         _flutterBackgroundVideoRecorderPlugin.recorderState.listen((event) {
       switch (event) {
         case 1:
-          _isRecording = true;
-          _recorderBusy = true;
-          setState(() {});
+          log('Recording has started');
           break;
         case 2:
-          _isRecording = false;
-          _recorderBusy = false;
-          setState(() {});
+          log('Recording has stopped');
           break;
         case 3:
-          _recorderBusy = true;
-          setState(() {});
+          log('Recorder is being initialized and about to start recording');
           break;
-        case -1:
-          _isRecording = false;
-          setState(() {});
+        case 4:
+          log('An exception has occurred in the recording service');
           break;
         default:
-          return;
+          log('wtf $event');
       }
+
+      // switch (event) {
+      //   case 1:
+      //     _isRecording = true;
+      //     _recorderBusy = true;
+      //     setState(() {});
+      //     break;
+      //   case 2:
+      //     _isRecording = false;
+      //     _recorderBusy = false;
+      //     setState(() {});
+      //     break;
+      //   case 3:
+      //     _recorderBusy = true;
+      //     setState(() {});
+      //     break;
+      //   case -1:
+      //     _isRecording = false;
+      //     setState(() {});
+      //     break;
+      //   default:
+      //     return;
+      // }
     });
   }
 
@@ -100,60 +106,68 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: Text(
-                  "Camera: $cameraFacing",
-                  style: const TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-              ),
               ElevatedButton(
-                style: ElevatedButtonTheme.of(context).style?.copyWith(
-                    backgroundColor: MaterialStateProperty.resolveWith(
-                        (states) => (!_isRecording && !_recorderBusy)
-                            ? null
-                            : Colors.grey)),
-                onPressed: () {
-                  if (!_isRecording && !_recorderBusy) {
-                    if (cameraFacing == "Rear camera") {
-                      cameraFacing = "Front camera";
-                    } else {
-                      cameraFacing = "Rear camera";
-                    }
-                    setState(() {});
-                  }
+                onPressed: () async {
+                  await _flutterBackgroundVideoRecorderPlugin
+                      .startVideoRecording(
+                    folderName: "Example Recorder",
+                    cameraFacing: CameraFacing.rearCamera,
+                    notificationTitle: "Example Notification Title",
+                    notificationText: "Example Notification Text",
+                    showToast: false,
+                  );
                 },
-                child: const Text("Switch camera facing"),
+                child: const Text(
+                  "Start Recording",
+                ),
               ),
               ElevatedButton(
                 onPressed: () async {
-                  if (!_isRecording && !_recorderBusy) {
-                    await _flutterBackgroundVideoRecorderPlugin
-                        .startVideoRecording(
-                      folderName: "Example Recorder",
-                      cameraFacing: CameraFacing.rearCamera,
-                      notificationTitle: "Example Notification Title",
-                      notificationText: "Example Notification Text",
-                      showToast: false,
-                    );
-                    setState(() {});
-                  } else if (!_isRecording && _recorderBusy) {
-                    return;
-                  } else {
-                    String filePath =
-                        await _flutterBackgroundVideoRecorderPlugin
-                                .stopVideoRecording() ??
-                            "None";
-                    setState(() {});
-                    log('path $filePath');
-                  }
+                  String filePath = await _flutterBackgroundVideoRecorderPlugin
+                          .stopVideoRecording() ??
+                      "None";
+
+                  log('path $filePath');
                 },
-                child: Text(
-                  _isRecording ? "Stop Recording" : "Start Recording",
+                child: const Text(
+                  "Stop Recording",
                 ),
-              )
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await _flutterBackgroundVideoRecorderPlugin
+                      .startVideoRecording(
+                    folderName: "Example Recorder",
+                    cameraFacing: CameraFacing.rearCamera,
+                    notificationTitle: "Example Notification Title",
+                    notificationText: "Example Notification Text",
+                    showToast: false,
+                  );
+
+                  Timer.periodic(
+                    const Duration(seconds: 10),
+                    (timer) async {
+                      String filePath =
+                          await _flutterBackgroundVideoRecorderPlugin
+                                  .stopVideoRecording() ??
+                              "None";
+
+                      log('path $filePath');
+                      await _flutterBackgroundVideoRecorderPlugin
+                          .startVideoRecording(
+                        folderName: "Example Recorder",
+                        cameraFacing: CameraFacing.rearCamera,
+                        notificationTitle: "Example Notification Title",
+                        notificationText: "Example Notification Text",
+                        showToast: false,
+                      );
+                    },
+                  );
+                },
+                child: const Text(
+                  "Start Periodic",
+                ),
+              ),
             ],
           ),
         ),
