@@ -60,24 +60,19 @@ class _MyAppState extends State<MyApp> {
               ElevatedButton(
                 onPressed: () async {
                   await _flutterBackgroundVideoRecorderPlugin
-                      .startVideoRecord();
-
-                  Timer.periodic(
-                    const Duration(seconds: 10),
-                    (timer) async {
-                      String filePath =
-                          await _flutterBackgroundVideoRecorderPlugin
-                                  .stopVideoRecording() ??
-                              "None";
-
-                      log('path $filePath');
-                      await _flutterBackgroundVideoRecorderPlugin
-                          .startVideoRecord();
-                    },
-                  );
+                      .startVideoService();
                 },
                 child: const Text(
                   "Start Periodic",
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await _flutterBackgroundVideoRecorderPlugin
+                      .startVideoService();
+                },
+                child: const Text(
+                  "Stop Periodic",
                 ),
               ),
             ],

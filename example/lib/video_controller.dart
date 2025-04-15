@@ -11,6 +11,8 @@ class CameraRecorderService {
   final _flutterBackgroundVideoRecorderPlugin =
       FlutterBackgroundVideoRecorder();
 
+  late Timer _timer;
+
   void listenState() {
     _flutterBackgroundVideoRecorderPlugin.recorderState.listen((event) {
       switch (event) {
@@ -36,18 +38,19 @@ class CameraRecorderService {
     if (Platform.isAndroid) {
       await startVideoRecord();
 
-      // _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      //   try {
-      //     await processVideo(shouldEnableRecording: true);
-      //   } catch (e) {
-      //     debugPrint('Timer error: $e');
-      //   }
-      // });
+      _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+        try {
+          await stopVideoRecording();
+          await startVideoRecord();
+        } catch (e) {
+          debugPrint('Timer error: $e');
+        }
+      });
     }
   }
 
   Future<void> stopService() async {
-    // _timer.cancel();
+ _timer.cancel();
     // await processVideo();
 
     final result =
