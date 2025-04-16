@@ -23,12 +23,12 @@ apply plugin: 'com.android.library'
 
 android {
     namespace 'com.lightsoftware.flutter_background_video_recorder.flutter_background_video_recorder_example'
-
     compileSdk 34
 
-   compileOptions { 
+
+    compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17 
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     defaultConfig {
